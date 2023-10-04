@@ -36,6 +36,8 @@ if __name__ == '__main__':
         f'{topic_prefix}Error_Time_Left': '0.0',
         f'{topic_prefix}Idle_Time_Left': '0.0',
         f'{topic_prefix}Busy_Time_Left': '0.0',
+        f'{topic_prefix}OEE_Left': '0.0',
+        f'{topic_prefix}OEE_Right': '0.0',
         f'{topic_prefix}Absolut_Time': '0.0',
         f'{topic_prefix}Product_Finished': 'false',
         f'{topic_prefix}Batch_Size': '0.0',
@@ -156,30 +158,28 @@ if __name__ == '__main__':
         #     modifyVariable(mqtt_client, topic_prefix + 'Left_Has_Error')
 
 
+
+
         if CELL_LEFT_ERROR:
             current_time_left = time.perf_counter()
             error_time_left = error_time_left + (current_time_left - last_time_left)
             last_time_left = current_time_left
             Dashboard_variables[topic_prefix + 'Error_Time_Left'] = str(round(error_time_left, 1))
             modifyVariable(mqtt_client, topic_prefix + 'Error_Time_Left')
-            Dashboard_variables[topic_prefix + 'Absolut_Time'] = str(round(current_time_left - start_time, 0))
-            modifyVariable(mqtt_client, topic_prefix + 'Absolut_Time')
         elif CELL_LEFT_BUSY:
             current_time_left = time.perf_counter()
             busy_time_left = busy_time_left + (current_time_left - last_time_left)
             last_time_left = current_time_left
             Dashboard_variables[topic_prefix + 'Busy_Time_Left'] = str(round(busy_time_left, 0))
             modifyVariable(mqtt_client, topic_prefix + 'Busy_Time_Left')
-            Dashboard_variables[topic_prefix + 'Absolut_Time'] = str(round(current_time_left - start_time, 0))
-            modifyVariable(mqtt_client, topic_prefix + 'Absolut_Time')
         elif CELL_LEFT_STOP is True and CELL_RIGHT_ERROR is False:
             current_time_left = time.perf_counter()
             idle_time_left = idle_time_left + (current_time_left - last_time_left)
             last_time_left = current_time_left
             Dashboard_variables[topic_prefix + 'Idle_Time_Left'] = str(round(idle_time_left, 0))
             modifyVariable(mqtt_client, topic_prefix + 'Idle_Time_Left')
-            Dashboard_variables[topic_prefix + 'Absolut_Time'] = str(round(current_time_left - start_time, 0))
-            modifyVariable(mqtt_client, topic_prefix + 'Absolut_Time')
+
+
 
 
         if CELL_RIGHT_ERROR:
@@ -188,24 +188,29 @@ if __name__ == '__main__':
             last_time_right = current_time_right
             Dashboard_variables[topic_prefix + 'Error_Time_Right'] = str(round(error_time_right, 1))
             modifyVariable(mqtt_client, topic_prefix + 'Error_Time_Right')
-            Dashboard_variables[topic_prefix + 'Absolut_Time'] = str(round(current_time_right - start_time, 0))
-            modifyVariable(mqtt_client, topic_prefix + 'Absolut_Time')
         elif CELL_RIGHT_BUSY:
             current_time_right = time.perf_counter()
             busy_time_right = busy_time_right + (current_time_right - last_time_right)
             last_time_right = current_time_right
             Dashboard_variables[topic_prefix + 'Busy_Time_Right'] = str(round(busy_time_right, 0))
             modifyVariable(mqtt_client, topic_prefix + 'Busy_Time_Right')
-            Dashboard_variables[topic_prefix + 'Absolut_Time'] = str(round(current_time_right - start_time, 0))
-            modifyVariable(mqtt_client, topic_prefix + 'Absolut_Time')
         elif CELL_RIGHT_STOP is True and CELL_RIGHT_ERROR is False:
             current_time_right = time.perf_counter()
             idle_time_right = idle_time_right + (current_time_right - last_time_right)
             last_time_right = current_time_right
             Dashboard_variables[topic_prefix + 'Idle_Time_Right'] = str(round(idle_time_right, 0))
             modifyVariable(mqtt_client, topic_prefix + 'Idle_Time_Right')
-            Dashboard_variables[topic_prefix + 'Absolut_Time'] = str(round(current_time_right - start_time, 0))
-            modifyVariable(mqtt_client, topic_prefix + 'Absolut_Time')
+
+
+        absolut_time = time.perf_counter() - start_time
+        Dashboard_variables[topic_prefix + 'Absolut_Time'] = str(round(absolut_time, 0))
+        modifyVariable(mqtt_client, topic_prefix + 'Absolut_Time')
+
+        Dashboard_variables[topic_prefix + 'OEE_Right'] = str(round(busy_time_right/(absolut_time-idle_time_right), 2))
+        modifyVariable(mqtt_client, topic_prefix + 'OEE_Right')
+
+        Dashboard_variables[topic_prefix + 'OEE_Left'] = str(round(busy_time_left/(absolut_time-idle_time_left), 2))
+        modifyVariable(mqtt_client, topic_prefix + 'OEE_Left')
 
 
         if Dashboard_variables[topic_prefix + 'Reset_Left'] == 'true':
