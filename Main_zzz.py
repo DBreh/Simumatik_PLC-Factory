@@ -151,13 +151,19 @@ if __name__ == '__main__':
 
         CELL_LEFT_LIDS = Dashboard_variables[f'{topic_prefix}Lid_Left'] == 'true'
 
-        # if CELL_RIGHT_ERROR:
-        #     Dashboard_variables[topic_prefix + 'Right_Has_Error'] = "true"
-        #     modifyVariable(mqtt_client, topic_prefix + 'Right_Has_Error')
-        #
-        # if CELL_LEFT_ERROR:
-        #     Dashboard_variables[topic_prefix + 'Left_Has_Error'] = "true"
-        #     modifyVariable(mqtt_client, topic_prefix + 'Left_Has_Error')
+        if CELL_RIGHT_ERROR:
+            Dashboard_variables[topic_prefix + 'Right_Has_Error'] = "true"
+            modifyVariable(mqtt_client, topic_prefix + 'Right_Has_Error')
+        else:
+            Dashboard_variables[topic_prefix + 'Right_Has_Error'] = "false"
+            modifyVariable(mqtt_client, topic_prefix + 'Right_Has_Error')
+
+        if CELL_LEFT_ERROR:
+            Dashboard_variables[topic_prefix + 'Left_Has_Error'] = "true"
+            modifyVariable(mqtt_client, topic_prefix + 'Left_Has_Error')
+        else:
+            Dashboard_variables[topic_prefix + 'Left_Has_Error'] = "false"
+            modifyVariable(mqtt_client, topic_prefix + 'Left_Has_Error')
 
 
 
