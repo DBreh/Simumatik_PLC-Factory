@@ -125,6 +125,8 @@ if __name__ == '__main__':
     last_time_right = time.perf_counter()
     last_time_left = time.perf_counter()
 
+    last_spawn_left = time.perf_counter()
+
     # Control loop
     while True:
         # Start by getting the updated inputs. List of inputs:
@@ -253,10 +255,12 @@ if __name__ == '__main__':
         # --------- Left sequence ---------
         if time.perf_counter() - start_time > 10:
             # Drop product
-            if LEFT_FEED_SEQ == 0:
-                DROP_PROD_LEFT = True
+            if LEFT_FEED_SEQ == 0 and time.perf_counter() > last_spawn_left+4:
+                if LEFT_SENSOR_DROP is False:
+                    DROP_PROD_LEFT = True
                 LEFT_FEED_SEQ = 1
                 print(f"LEFT_FEED_SEQ = {LEFT_FEED_SEQ}")
+                last_spawn_left = time.perf_counter()
             # Wait for sensor
             elif LEFT_FEED_SEQ == 1:
                 if LEFT_SENSOR_DROP:
@@ -266,7 +270,7 @@ if __name__ == '__main__':
                     print(f"LEFT_FEED_SEQ = {LEFT_FEED_SEQ}")
             # Move forward
             elif LEFT_FEED_SEQ == 2:
-                if RIGHT_SENSOR_IN:
+                if LEFT_SENSOR_IN:
                     CONV_IN_LEFT = False
                     LEFT_FEED_SEQ = 3
                     print(f"LEFT_FEED_SEQ = {LEFT_FEED_SEQ}")
@@ -282,6 +286,9 @@ if __name__ == '__main__':
                     CONV_IN_LEFT = False
                     LEFT_FEED_SEQ = 0
                     print(f"LEFT_FEED_SEQ = {LEFT_FEED_SEQ}")
+            else:
+                print("Fast spawn left line prevented")
+                DROP_PROD_LEFT = False
 
             # Product done
             if LEFT_OUT_SEQ == 0:
@@ -445,4 +452,4 @@ if __name__ == '__main__':
                                     DROP_PROD_LEFT, CELL_LEFT_STOP, CELL_LEFT_START, CELL_LEFT_RESET,
                                     CELL_LEFT_LIDS, CONV_OUT2_LEFT, CONV_OUT1_LEFT, CONV_IN_LEFT])
         # Sleep for short duration to prevent taking much CPU power
-        time.sleep(0.03)
+        time.sleep(0.05)
